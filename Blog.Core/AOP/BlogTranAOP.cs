@@ -31,7 +31,8 @@ namespace Blog.Core.AOP
             var method = invocation.MethodInvocationTarget ?? invocation.Method;
             //对当前方法的特性验证
             //如果需要验证
-            if (method.GetCustomAttributes(true).FirstOrDefault(x => x.GetType() == typeof(UseTranAttribute)) is UseTranAttribute) {
+            if (method.GetCustomAttributes(true).FirstOrDefault(x => x.GetType() == typeof(UseTranAttribute)) is UseTranAttribute)
+            {
                 try
                 {
                     Console.WriteLine($"Begin Transaction");
@@ -48,6 +49,7 @@ namespace Blog.Core.AOP
                         {
                             invocation.ReturnValue = InternalAsyncHelper.AwaitTaskWithPostActionAndFinally(
                                 (Task)invocation.ReturnValue,
+                             async () => await SuccessAction(invocation),/*成功时执行*/
                                 ex =>
                                 {
                                     _unitOfWork.RollbackTran();
@@ -59,6 +61,7 @@ namespace Blog.Core.AOP
                             invocation.ReturnValue = InternalAsyncHelper.CallAwaitTaskWithPostActionAndFinallyAndGetResult(
                              invocation.Method.ReturnType.GenericTypeArguments[0],
                              invocation.ReturnValue,
+                             async () => await SuccessAction(invocation),/*成功时执行*/
                              ex =>
                              {
                                  _unitOfWork.RollbackTran();
@@ -84,6 +87,11 @@ namespace Blog.Core.AOP
 
         }
 
+        private async Task SuccessAction(IInvocation invocation)
+        {
+
+        }
+
         public static bool IsAsyncMethod(MethodInfo method)
         {
             return (
@@ -91,6 +99,11 @@ namespace Blog.Core.AOP
                 (method.ReturnType.IsGenericType && method.ReturnType.GetGenericTypeDefinition() == typeof(Task<>))
                 );
         }
+        private async Task TestActionAsync(IInvocation invocation)
+        {
+            await Task.Run(null);
+        }
+
     }
 
 
