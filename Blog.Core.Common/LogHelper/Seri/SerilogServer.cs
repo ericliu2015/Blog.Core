@@ -19,7 +19,7 @@ namespace Blog.Core.Common.LogHelper
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Error)
-                .WriteTo.File(Path.Combine($"logs/Information/{filename}/", ".txt"), rollingInterval: RollingInterval.Day)
+                .WriteTo.File(Path.Combine($"log/Information/{filename}/", ".txt"), rollingInterval: RollingInterval.Day)
                 .CreateLogger();
             Log.Information(message+ info, info);
             Log.CloseAndFlush();
@@ -35,7 +35,7 @@ namespace Blog.Core.Common.LogHelper
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Error)
-                .WriteTo.File(Path.Combine($"logs/Error/{filename}/",".txt"),rollingInterval:RollingInterval.Day)
+                .WriteTo.File(Path.Combine($"log/Error/{filename}/",".txt"),rollingInterval:RollingInterval.Day)
                 .CreateLogger();
             Log.Error(ex, message);
             Log.CloseAndFlush();

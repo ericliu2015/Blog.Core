@@ -1,34 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using SqlSugar;
+using System;
 
-namespace Blog.Core.Tasks.QuartzNet
+namespace Blog.Core.Model.Models
 {
     /// <summary>
     /// 任务计划表
     /// </summary>
-    public class SysSchedule
+    public class TasksQz : RootEntity
     {
-        public Guid Id { get; set; }
         /// <summary>
         /// 任务名称
         /// </summary>
+        [SugarColumn(ColumnDataType = "nvarchar", Length = 200, IsNullable = true)]
         public string Name { get; set; }
         /// <summary>
         /// 任务分组
         /// </summary>
+        [SugarColumn(ColumnDataType = "nvarchar", Length = 200, IsNullable = true)]
         public string JobGroup { get; set; }
         /// <summary>
         /// 任务运行时间表达式
         /// </summary>
+        [SugarColumn(ColumnDataType = "nvarchar", Length = 200, IsNullable = true)]
         public string Cron { get; set; }
         /// <summary>
         /// 任务所在DLL对应的程序集名称
         /// </summary>
+        [SugarColumn(ColumnDataType = "nvarchar", Length = 200, IsNullable = true)]
         public string AssemblyName { get; set; }
         /// <summary>
         /// 任务所在类
         /// </summary>
+        [SugarColumn(ColumnDataType = "nvarchar", Length = 200, IsNullable = true)]
         public string ClassName { get; set; }
         /// <summary>
         /// 任务描述
@@ -62,5 +65,14 @@ namespace Blog.Core.Tasks.QuartzNet
         /// 执行传参
         /// </summary>
         public string JobParams { get; set; }
+
+
+        [SugarColumn(IsNullable = true)]
+        public bool? IsDeleted { get; set; }
+        /// <summary>
+        /// 创建时间
+        /// </summary>
+        [SugarColumn(IsNullable = true)]
+        public DateTime CreateTime { get; set; } = DateTime.Now;
     }
 }

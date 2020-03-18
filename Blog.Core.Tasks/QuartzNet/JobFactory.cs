@@ -2,10 +2,8 @@
 using Quartz;
 using Quartz.Spi;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Blog.Core.Tasks.QuartzNet
+namespace Blog.Core.Tasks
 {
     public class JobFactory : IJobFactory
     {

@@ -1,15 +1,14 @@
 ﻿using Blog.Core.Model;
+using Blog.Core.Model.Models;
 using Quartz;
 using Quartz.Impl;
 using Quartz.Spi;
 using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace Blog.Core.Tasks.QuartzNet
+namespace Blog.Core.Tasks
 {
     /// <summary>
     /// 任务调度管理中心
@@ -106,41 +105,41 @@ namespace Blog.Core.Tasks.QuartzNet
         /// 添加一个计划任务（映射程序集指定IJob实现类）
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="sysSchedule"></param>
+        /// <param name="tasksQz"></param>
         /// <returns></returns>
-        public async Task<MessageModel<string>> AddScheduleJobAsync(SysSchedule sysSchedule)
+        public async Task<MessageModel<string>> AddScheduleJobAsync(TasksQz tasksQz)
         {
             var result = new MessageModel<string>();
             try
             {
-                if (sysSchedule != null)
+                if (tasksQz != null)
                 {
-                    JobKey jobKey = new JobKey(sysSchedule.Id.ToString(), sysSchedule.JobGroup);
+                    JobKey jobKey = new JobKey(tasksQz.Id.ToString(), tasksQz.JobGroup);
                     if (await _scheduler.Result.CheckExists(jobKey))
                     {
                         result.success = false;
-                        result.msg = $"该任务计划已经在执行:【{sysSchedule.Name}】,请勿重复启动！";
+                        result.msg = $"该任务计划已经在执行:【{tasksQz.Name}】,请勿重复启动！";
                         return result;
                     }
                     #region 设置开始时间和结束时间
 
-                    if (sysSchedule.BeginTime == null)
+                    if (tasksQz.BeginTime == null)
                     {
-                        sysSchedule.BeginTime = DateTime.Now;
+                        tasksQz.BeginTime = DateTime.Now;
                     }
-                    DateTimeOffset starRunTime = DateBuilder.NextGivenSecondDate(sysSchedule.BeginTime, 1);//设置开始时间
-                    if (sysSchedule.EndTime == null)
+                    DateTimeOffset starRunTime = DateBuilder.NextGivenSecondDate(tasksQz.BeginTime, 1);//设置开始时间
+                    if (tasksQz.EndTime == null)
                     {
-                        sysSchedule.EndTime = DateTime.MaxValue.AddDays(-1);
+                        tasksQz.EndTime = DateTime.MaxValue.AddDays(-1);
                     }
-                    DateTimeOffset endRunTime = DateBuilder.NextGivenSecondDate(sysSchedule.EndTime, 1);//设置暂停时间
+                    DateTimeOffset endRunTime = DateBuilder.NextGivenSecondDate(tasksQz.EndTime, 1);//设置暂停时间
 
                     #endregion
 
                     #region 通过反射获取程序集类型和类   
 
-                    Assembly assembly = Assembly.Load(new AssemblyName(sysSchedule.AssemblyName));
-                    Type jobType = assembly.GetType(sysSchedule.AssemblyName + "." + sysSchedule.ClassName);
+                    Assembly assembly = Assembly.Load(new AssemblyName(tasksQz.AssemblyName));
+                    Type jobType = assembly.GetType(tasksQz.AssemblyName + "." + tasksQz.ClassName);
 
                     #endregion
                     //判断任务调度是否开启
@@ -150,9 +149,8 @@ namespace Blog.Core.Tasks.QuartzNet
                     }
 
                     //传入反射出来的执行程序集
-                    IJobDetail job = new JobDetailImpl(sysSchedule.Id.ToString(), sysSchedule.JobGroup, jobType);
-                    job.JobDataMap.Add("JobParam", sysSchedule.JobParams);
-                    //Job执行时的参数还有待解决？？？？？？？？？？？？？？？？？？？？？
+                    IJobDetail job = new JobDetailImpl(tasksQz.Id.ToString(), tasksQz.JobGroup, jobType);
+                    job.JobDataMap.Add("JobParam", tasksQz.JobParams);
                     ITrigger trigger;
 
                     #region 泛型传递
@@ -161,13 +159,13 @@ namespace Blog.Core.Tasks.QuartzNet
                     //    .Build();
                     #endregion
 
-                    if (sysSchedule.Cron != null && CronExpression.IsValidExpression(sysSchedule.Cron) && sysSchedule.TriggerType > 0)
+                    if (tasksQz.Cron != null && CronExpression.IsValidExpression(tasksQz.Cron) && tasksQz.TriggerType > 0)
                     {
-                        trigger = CreateCronTrigger(sysSchedule);
+                        trigger = CreateCronTrigger(tasksQz);
                     }
                     else
                     {
-                        trigger = CreateSimpleTrigger(sysSchedule);
+                        trigger = CreateSimpleTrigger(tasksQz);
                     }
                     // 告诉Quartz使用我们的触发器来安排作业
                     await _scheduler.Result.ScheduleJob(job, trigger);
@@ -175,13 +173,13 @@ namespace Blog.Core.Tasks.QuartzNet
                     //await Console.Out.WriteLineAsync("关闭了调度器！");
                     //await _scheduler.Result.Shutdown();
                     result.success = true;
-                    result.msg = $"启动任务:【{sysSchedule.Name}】成功";
+                    result.msg = $"启动任务:【{tasksQz.Name}】成功";
                     return result;
                 }
                 else
                 {
                     result.success = false;
-                    result.msg = $"任务计划不存在:【{sysSchedule.Name}】";
+                    result.msg = $"任务计划不存在:【{tasksQz.Name}】";
                     return result;
                 }
             }
@@ -195,7 +193,7 @@ namespace Blog.Core.Tasks.QuartzNet
         /// 暂停一个指定的计划任务
         /// </summary>
         /// <returns></returns>
-        public async Task<MessageModel<string>> StopScheduleJobAsync(SysSchedule sysSchedule)
+        public async Task<MessageModel<string>> StopScheduleJobAsync(TasksQz sysSchedule)
         {
             var result = new MessageModel<string>();
             try
@@ -226,7 +224,7 @@ namespace Blog.Core.Tasks.QuartzNet
         /// </summary>
         /// <param name="sysSchedule"></param>
         /// <returns></returns>
-        public async Task<MessageModel<string>> ResumeJob(SysSchedule sysSchedule)
+        public async Task<MessageModel<string>> ResumeJob(TasksQz sysSchedule)
         {
             var result = new MessageModel<string>();
             try
@@ -258,7 +256,7 @@ namespace Blog.Core.Tasks.QuartzNet
         /// <param name="starRunTime"></param>
         /// <param name="endRunTime"></param>
         /// <returns></returns>
-        private ITrigger CreateSimpleTrigger(SysSchedule sysSchedule)
+        private ITrigger CreateSimpleTrigger(TasksQz sysSchedule)
         {
             if (sysSchedule.RunTimes > 0)
             {
@@ -290,7 +288,7 @@ namespace Blog.Core.Tasks.QuartzNet
         /// </summary>
         /// <param name="m"></param>
         /// <returns></returns>
-        private ITrigger CreateCronTrigger(SysSchedule sysSchedule)
+        private ITrigger CreateCronTrigger(TasksQz sysSchedule)
         {
             // 作业触发器
             return TriggerBuilder.Create()

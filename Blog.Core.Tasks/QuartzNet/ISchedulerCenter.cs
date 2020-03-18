@@ -1,11 +1,12 @@
 ﻿using Blog.Core.Model;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Blog.Core.Model.Models;
 using System.Threading.Tasks;
 
-namespace Blog.Core.Tasks.QuartzNet
+namespace Blog.Core.Tasks
 {
+    /// <summary>
+    /// 服务调度接口
+    /// </summary>
     public interface ISchedulerCenter
     {
 
@@ -24,19 +25,19 @@ namespace Blog.Core.Tasks.QuartzNet
         /// </summary>
         /// <param name="sysSchedule"></param>
         /// <returns></returns>
-        Task<MessageModel<string>> AddScheduleJobAsync(SysSchedule sysSchedule);
+        Task<MessageModel<string>> AddScheduleJobAsync(TasksQz sysSchedule);
         /// <summary>
         /// 停止一个任务
         /// </summary>
         /// <param name="sysSchedule"></param>
         /// <returns></returns>
-        Task<MessageModel<string>> StopScheduleJobAsync(SysSchedule sysSchedule);
+        Task<MessageModel<string>> StopScheduleJobAsync(TasksQz sysSchedule);
         /// <summary>
         /// 恢复一个任务
         /// </summary>
         /// <param name="sysSchedule"></param>
         /// <returns></returns>
-        Task<MessageModel<string>> ResumeJob(SysSchedule sysSchedule);
+        Task<MessageModel<string>> ResumeJob(TasksQz sysSchedule);
 
     }
 
