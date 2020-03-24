@@ -1,4 +1,4 @@
-# J  介绍
+﻿# J  介绍
 
 最新的前后端完全分离框架【 ASP.NET Core 3.1 Api + Vue 2.x + ele】。  
 ASP.NET Core 3.1 教程，前后端分离的后端接口，vue教程的姊妹篇。   
@@ -36,8 +36,8 @@ BCVP（Blog.Core&Vue Project）开箱即用的企业级前后端分离【 .NET C
 - [√] IdentityServer4 认证;
 - [√] API 限速;
 - [√] 作业调度 Quartz.net;
+- [√] Sqlsugar 读写分离;
 - [ ] Redis 队列;
-- [ ] Sqlsugar 读写分离;
 - [ ] 支付;
 - [ ] 数据部门权限;
 
