@@ -100,32 +100,33 @@ namespace Blog.Core.Extensions
              // ids4和jwt切换
 
              // 1.添加JwtBearer认证服务
-             .AddJwtBearer(o =>
-             {
-                 o.TokenValidationParameters = tokenValidationParameters;
-                 o.Events = new JwtBearerEvents
-                 {
-                     OnAuthenticationFailed = context =>
-                     {
-                         // 如果过期，则把<是否过期>添加到，返回头信息中
-                         if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
-                         {
-                             context.Response.Headers.Add("Token-Expired", "true");
-                         }
-                         return Task.CompletedTask;
-                     }
-                 };
-             })
-             // 2.添加Identityserver4认证
-             //.AddIdentityServerAuthentication(options =>
+             //.AddJwtBearer(o =>
              //{
-             //    options.Authority = Appsettings.app(new string[] { "Startup", "IdentityServer4", "AuthorizationUrl" });
-             //    options.RequireHttpsMetadata = false;
-             //    options.ApiName = "blog.core.api";
-             //    options.SupportedTokens = IdentityServer4.AccessTokenValidation.SupportedTokens.Jwt;
-             //    options.ApiSecret = "api_secret";
-
+             //    o.TokenValidationParameters = tokenValidationParameters;
+             //    o.Events = new JwtBearerEvents
+             //    {
+             //        OnAuthenticationFailed = context =>
+             //        {
+             //            // 如果过期，则把<是否过期>添加到，返回头信息中
+             //            if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+             //            {
+             //                context.Response.Headers.Add("Token-Expired", "true");
+             //            }
+             //            return Task.CompletedTask;
+             //        }
+             //    };
              //})
+
+             // 2.添加Identityserver4认证
+             .AddIdentityServerAuthentication(options =>
+             {
+                 options.Authority = Appsettings.app(new string[] { "Startup", "IdentityServer4", "AuthorizationUrl" });
+                 options.RequireHttpsMetadata = false;
+                 options.ApiName = "blog.core.api";
+                 options.SupportedTokens = IdentityServer4.AccessTokenValidation.SupportedTokens.Jwt;
+                 options.ApiSecret = "api_secret";
+
+             })
              .AddScheme<AuthenticationSchemeOptions, ApiResponseHandler>(nameof(ApiResponseHandler), o => { });
 
 

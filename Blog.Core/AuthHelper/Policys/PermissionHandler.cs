@@ -48,22 +48,24 @@ namespace Blog.Core.AuthHelper
             {
                 var data = await _roleModulePermissionServices.RoleModuleMaps();
                 // ids4和jwt切换
-                //var list = (from item in data
-                //            where item.IsDeleted == false
-                //            orderby item.Id
-                //            select new PermissionItem
-                //            {
-                //                Url = item.Module?.LinkUrl,
-                //                Role = item.Role?.Id.ObjToString(),
-                //            }).ToList();
+                // ids4
                 var list = (from item in data
                             where item.IsDeleted == false
                             orderby item.Id
                             select new PermissionItem
                             {
                                 Url = item.Module?.LinkUrl,
-                                Role = item.Role?.Name.ObjToString(),
+                                Role = item.Role?.Id.ObjToString(),
                             }).ToList();
+                // jwt
+                //var list = (from item in data
+                //            where item.IsDeleted == false
+                //            orderby item.Id
+                //            select new PermissionItem
+                //            {
+                //                Url = item.Module?.LinkUrl,
+                //                Role = item.Role?.Name.ObjToString(),
+                //            }).ToList();
                 requirement.Permissions = list;
             }
 
@@ -116,12 +118,14 @@ namespace Blog.Core.AuthHelper
                             // 获取当前用户的角色信息
 
                             // ids4和jwt切换
-                            //var currentUserRoles = (from item in httpContext.User.Claims
-                            //                        where item.Type == "role"
-                            //                        select item.Value).ToList();
+                            // ids4
                             var currentUserRoles = (from item in httpContext.User.Claims
-                                                    where item.Type == requirement.ClaimType
+                                                    where item.Type == "role"
                                                     select item.Value).ToList();
+                            // jwt
+                            //var currentUserRoles = (from item in httpContext.User.Claims
+                            //                        where item.Type == requirement.ClaimType
+                            //                        select item.Value).ToList();
 
                             var isMatchRole = false;
                             var permisssionRoles = requirement.Permissions.Where(w => currentUserRoles.Contains(w.Role));

@@ -355,10 +355,15 @@ namespace Blog.Core.Controllers
                                      select item.Value).FirstOrDefault().ObjToInt();
 
             var roleIds = (from item in _httpContext.HttpContext.User.Claims
-                          where item.Type == "role"
-                          select item.Value.ObjToInt()).ToList();
+                           where item.Type == "role"
+                           select item.Value.ObjToInt()).ToList();
 
             var uName = _user.Name;
+
+            // ids4和jwt切换
+            // 这些是jwt的
+            //var uidInHttpcontext1 = (JwtHelper.SerializeJwt(_httpContext.HttpContext.Request.Headers["Authorization"].ObjToString().Replace("Bearer ", "")))?.Uid;
+            //var roleIds = (await _userRoleServices.Query(d => d.IsDeleted == false && d.UserId == uid)).Select(d => d.RoleId.ObjToInt()).Distinct();
 
             if (uid > 0 && uid == uidInHttpcontext1)
             {
