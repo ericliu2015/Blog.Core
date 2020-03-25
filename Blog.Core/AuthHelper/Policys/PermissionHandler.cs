@@ -47,13 +47,22 @@ namespace Blog.Core.AuthHelper
             if (!requirement.Permissions.Any())
             {
                 var data = await _roleModulePermissionServices.RoleModuleMaps();
+                // ids4和jwt切换
+                //var list = (from item in data
+                //            where item.IsDeleted == false
+                //            orderby item.Id
+                //            select new PermissionItem
+                //            {
+                //                Url = item.Module?.LinkUrl,
+                //                Role = item.Role?.Id.ObjToString(),
+                //            }).ToList();
                 var list = (from item in data
                             where item.IsDeleted == false
                             orderby item.Id
                             select new PermissionItem
                             {
                                 Url = item.Module?.LinkUrl,
-                                Role = item.Role?.Id.ObjToString(),
+                                Role = item.Role?.Name.ObjToString(),
                             }).ToList();
                 requirement.Permissions = list;
             }
@@ -105,8 +114,13 @@ namespace Blog.Core.AuthHelper
                         if (true)
                         {
                             // 获取当前用户的角色信息
+
+                            // ids4和jwt切换
+                            //var currentUserRoles = (from item in httpContext.User.Claims
+                            //                        where item.Type == "role"
+                            //                        select item.Value).ToList();
                             var currentUserRoles = (from item in httpContext.User.Claims
-                                                    where item.Type == "role"
+                                                    where item.Type == requirement.ClaimType
                                                     select item.Value).ToList();
 
                             var isMatchRole = false;
