@@ -20,6 +20,7 @@ using log4net.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -74,6 +75,9 @@ namespace Blog.Core
 
             services.AddScoped<UseServiceDIAttribute>();
 
+            services.Configure<KestrelServerOptions>(x => x.AllowSynchronousIO = true)
+                    .Configure<IISServerOptions>(x => x.AllowSynchronousIO = true);
+
             services.AddControllers(o =>
             {
                 // 全局异常过滤
@@ -100,7 +104,7 @@ namespace Blog.Core
         // 注意在CreateDefaultBuilder中，添加Autofac服务工厂
         public void ConfigureContainer(ContainerBuilder builder)
         {
-            var basePath = Microsoft.DotNet.PlatformAbstractions.ApplicationEnvironment.ApplicationBasePath;
+            var basePath = AppContext.BaseDirectory;
             //builder.RegisterType<AdvertisementServices>().As<IAdvertisementServices>();
 
 
@@ -167,7 +171,7 @@ namespace Blog.Core
 
             #region 没有接口的单独类 class 注入
 
-            //只能注入该类中的虚方法
+            //只能注入该类中的虚方法，且必须是public
             builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(Love)))
                 .EnableClassInterceptors()
                 .InterceptedBy(cacheType.ToArray());
@@ -195,11 +199,12 @@ namespace Blog.Core
             app.UseSignalRSendMildd();
             // 记录ip请求
             app.UseIPLogMildd();
+            // 查看注入的所有服务
+            app.UseAllServicesMildd(_services, tsDIAutofac);
 
             #region Environment
             if (env.IsDevelopment())
             {
-                app.UseAllServicesMildd(_services, tsDIAutofac);
                 // 在开发环境中，使用异常页面，这样可以暴露错误堆栈信息，所以不要放在生产环境。
                 app.UseDeveloperExceptionPage();
 

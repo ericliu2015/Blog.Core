@@ -6,7 +6,7 @@ namespace Blog.Core.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    [Authorize(Permissions.Name)]
+    //[Authorize(Permissions.Name)]
     public class DbFirstController : ControllerBase
     {
         private readonly MyContext myContext;

@@ -16,6 +16,8 @@ namespace Blog.Core.IRepository.Base
         Task<List<TEntity>> QueryByIDs(object[] lstIds);
 
         Task<int> Add(TEntity model);
+        
+        Task<int> Add(List<TEntity> listEntity);
 
         Task<bool> DeleteById(object id);
 

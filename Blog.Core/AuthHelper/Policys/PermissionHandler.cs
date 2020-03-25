@@ -47,6 +47,8 @@ namespace Blog.Core.AuthHelper
             if (!requirement.Permissions.Any())
             {
                 var data = await _roleModulePermissionServices.RoleModuleMaps();
+                // ids4和jwt切换
+                // ids4
                 var list = (from item in data
                             where item.IsDeleted == false
                             orderby item.Id
@@ -55,6 +57,15 @@ namespace Blog.Core.AuthHelper
                                 Url = item.Module?.LinkUrl,
                                 Role = item.Role?.Id.ObjToString(),
                             }).ToList();
+                // jwt
+                //var list = (from item in data
+                //            where item.IsDeleted == false
+                //            orderby item.Id
+                //            select new PermissionItem
+                //            {
+                //                Url = item.Module?.LinkUrl,
+                //                Role = item.Role?.Name.ObjToString(),
+                //            }).ToList();
                 requirement.Permissions = list;
             }
 
@@ -105,9 +116,16 @@ namespace Blog.Core.AuthHelper
                         if (true)
                         {
                             // 获取当前用户的角色信息
+
+                            // ids4和jwt切换
+                            // ids4
                             var currentUserRoles = (from item in httpContext.User.Claims
                                                     where item.Type == "role"
                                                     select item.Value).ToList();
+                            // jwt
+                            //var currentUserRoles = (from item in httpContext.User.Claims
+                            //                        where item.Type == requirement.ClaimType
+                            //                        select item.Value).ToList();
 
                             var isMatchRole = false;
                             var permisssionRoles = requirement.Permissions.Where(w => currentUserRoles.Contains(w.Role));
@@ -150,14 +168,14 @@ namespace Blog.Core.AuthHelper
                     }
                 }
                 //判断没有登录时，是否访问登录的url,并且是Post请求，并且是form表单提交类型，否则为失败
-                if (!questUrl.Equals(requirement.LoginPath.ToLower(), StringComparison.Ordinal) && (!httpContext.Request.Method.Equals("POST") || !httpContext.Request.HasFormContentType))
+                if (!(questUrl.Equals(requirement.LoginPath.ToLower(), StringComparison.Ordinal) && (!httpContext.Request.Method.Equals("POST") || !httpContext.Request.HasFormContentType)))
                 {
                     context.Fail();
                     return;
                 }
             }
 
-            context.Succeed(requirement);
+            //context.Succeed(requirement);
         }
     }
 }

@@ -354,22 +354,25 @@ namespace Blog.Core.Controllers
                                      where item.Type == "sub"
                                      select item.Value).FirstOrDefault().ObjToInt();
 
-            var roleId = (from item in _httpContext.HttpContext.User.Claims
-                          where item.Type == "role"
-                          select item.Value).FirstOrDefault().ObjToInt();
+            var roleIds = (from item in _httpContext.HttpContext.User.Claims
+                           where item.Type == "role"
+                           select item.Value.ObjToInt()).ToList();
 
             var uName = _user.Name;
 
+            // ids4和jwt切换
+            // 这些是jwt的
+            //var uidInHttpcontext1 = (JwtHelper.SerializeJwt(_httpContext.HttpContext.Request.Headers["Authorization"].ObjToString().Replace("Bearer ", "")))?.Uid;
+            //var roleIds = (await _userRoleServices.Query(d => d.IsDeleted == false && d.UserId == uid)).Select(d => d.RoleId.ObjToInt()).Distinct();
+
             if (uid > 0 && uid == uidInHttpcontext1)
             {
-                //var roleId = ((await _userRoleServices.Query(d => d.IsDeleted == false && d.UserId == uid)).FirstOrDefault()?.RoleId).ObjToInt();
-                if (roleId > 0)
+                if (roleIds.Any())
                 {
-                    var pids = (await _roleModulePermissionServices.Query(d => d.IsDeleted == false && d.RoleId == roleId)).Select(d => d.PermissionId.ObjToInt()).Distinct();
+                    var pids = (await _roleModulePermissionServices.Query(d => d.IsDeleted == false && roleIds.Contains(d.RoleId))).Select(d => d.PermissionId.ObjToInt()).Distinct();
 
                     if (pids.Any())
                     {
-                        //var rolePermissionMoudles = (await _permissionServices.Query(d => pids.Contains(d.Id) && d.IsButton == false)).OrderBy(c => c.OrderSort);
                         var rolePermissionMoudles = (await _permissionServices.Query(d => pids.Contains(d.Id))).OrderBy(c => c.OrderSort);
                         var permissionTrees = (from child in rolePermissionMoudles
                                                where child.IsDeleted == false
